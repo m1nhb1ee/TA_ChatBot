@@ -48,7 +48,7 @@ USER appuser
 
 # Set environment variables
 ENV PATH=/home/appuser/.local/bin:$PATH
-ENV PYTHONPATH=/app
+ENV PYTHONPATH=/home/appuser/.local/lib/python3.11/site-packages:/app
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
