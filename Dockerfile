@@ -53,7 +53,6 @@ ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
 # Streamlit configuration
-ENV STREAMLIT_SERVER_PORT=8501
 ENV STREAMLIT_SERVER_HEADLESS=true
 ENV STREAMLIT_SERVER_ENABLECORS=false
 ENV STREAMLIT_LOGGER_LEVEL=info
@@ -61,7 +60,7 @@ ENV STREAMLIT_CLIENT_SHOWERRORDETAILS=true
 
 # Create a startup script with better error handling
 RUN mkdir -p /app/startup && \
-    printf '#!/bin/bash\nset -e\necho "========================================="\necho "Starting TA_ChatBot Streamlit Application"\necho "========================================="\necho "Python version: $(python --version)"\necho "Streamlit version: $(streamlit --version)"\necho ""\n\nif [ -z "$OPENAI_API_KEY" ]; then\n    echo "⚠️  WARNING: OPENAI_API_KEY environment variable is NOT set"\n    echo "   The application will start but the chatbot will not function"\n    echo "   Please set OPENAI_API_KEY environment variable on Railway"\n    echo ""\nfi\n\necho "Starting Streamlit server on port $PORT"\necho "========================================="\necho ""\n\nexec streamlit run app.py --server.port=$PORT --server.address=0.0.0.0 --logger.level=info --client.showErrorDetails=true\n' > /app/startup/entrypoint.sh && \
+    printf '#!/bin/bash\nset -e\necho "========================================="\necho "Starting TA_ChatBot Streamlit Application"\necho "========================================="\necho "Python version: $(python --version)"\necho "Streamlit version: $(streamlit --version)"\necho ""\n\n# Use PORT from environment, default to 8501 if not set\nPORT=${PORT:-8501}\necho "PORT environment variable: $PORT"\n\nif [ -z "$OPENAI_API_KEY" ]; then\n    echo "⚠️  WARNING: OPENAI_API_KEY environment variable is NOT set"\n    echo "   The application will start but the chatbot will not function"\n    echo "   Please set OPENAI_API_KEY environment variable on Railway"\n    echo ""\nfi\n\necho "Starting Streamlit server on port $PORT"\necho "========================================="\necho ""\n\nexec streamlit run app.py --server.port=$PORT --server.address=0.0.0.0 --logger.level=info --client.showErrorDetails=true\n' > /app/startup/entrypoint.sh && \
     chmod +x /app/startup/entrypoint.sh
 
 # ============================================================
@@ -69,7 +68,7 @@ RUN mkdir -p /app/startup && \
 # ============================================================
 # Streamlit health check - wait for startup period before checking
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
-    CMD python -c "import requests; resp = requests.get('http://localhost:${STREAMLIT_SERVER_PORT}/_stcore/health', timeout=5); resp.raise_for_status()" || exit 1
+    CMD python -c "import requests; resp = requests.get('http://localhost:${PORT:-8501}/_stcore/health', timeout=5); resp.raise_for_status()" || exit 1
 
 # ============================================================
 # START COMMAND
