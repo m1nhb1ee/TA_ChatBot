@@ -13,12 +13,10 @@ from utils.storage import (
 )
 from utils.email_service import send_escalation_email
 
-# Check if OPENAI_API_KEY is set before importing agent
-if not os.getenv("OPENAI_API_KEY"):
-    st.error("❌ OPENAI_API_KEY is not set. Please configure it on Railway.")
-    st.stop()
-
 from agent import stream_chat
+
+# Check if OPENAI_API_KEY is set (don't stop, let server start)
+OPENAI_API_KEY_MISSING = not os.getenv("OPENAI_API_KEY")
 
 # ===== PAGE CONFIG =====
 st.set_page_config(
@@ -450,7 +448,19 @@ def render_main():
     </div>
     """, unsafe_allow_html=True)
 
-    # Initialize state variables
+    # ERROR CHECK: Display error if OPENAI_API_KEY is missing
+    if OPENAI_API_KEY_MISSING:
+        st.error("""
+        ❌ **OPENAI_API_KEY is not configured**
+        
+        The chatbot cannot function without an API key. Please:
+        1. Go to https://platform.openai.com/account/api-keys
+        2. Create or copy your API key
+        3. Set it on Railway: `railway variables set OPENAI_API_KEY=sk-...`
+        4. Redeploy the application
+        """)
+        st.info("Learn more: https://docs.railway.com/reference/variables")
+        return  # Exit early, don't show chat interface
     if "session_id" not in st.session_state:
         st.session_state.session_id = uuid.uuid4().hex
     if "attempt_count" not in st.session_state:
