@@ -59,37 +59,9 @@ ENV STREAMLIT_LOGGER_LEVEL=info
 ENV STREAMLIT_CLIENT_SHOWERRORDETAILS=true
 
 # Create a startup script with better error handling
-RUN mkdir -p /app/startup && cat > /app/startup/entrypoint.sh << 'EOF'
-#!/bin/bash
-set -e
-
-echo "=========================================="
-echo "Starting TA_ChatBot Streamlit Application"
-echo "=========================================="
-echo "Python version: $(python --version)"
-echo "Streamlit version: $(streamlit --version)"
-echo ""
-
-# Check if OPENAI_API_KEY is set
-if [ -z "$OPENAI_API_KEY" ]; then
-    echo "⚠️  WARNING: OPENAI_API_KEY environment variable is NOT set"
-    echo "   The application will start but the chatbot will not function"
-    echo "   Please set OPENAI_API_KEY environment variable on Railway"
-    echo ""
-fi
-
-echo "Starting Streamlit server on port $PORT"
-echo "=========================================="
-echo ""
-
-exec streamlit run app.py \
-    --server.port=$PORT \
-    --server.address=0.0.0.0 \
-    --logger.level=info \
-    --client.showErrorDetails=true
-EOF
-
-chmod +x /app/startup/entrypoint.sh
+RUN mkdir -p /app/startup && \
+    printf '#!/bin/bash\nset -e\necho "========================================="\necho "Starting TA_ChatBot Streamlit Application"\necho "========================================="\necho "Python version: $(python --version)"\necho "Streamlit version: $(streamlit --version)"\necho ""\n\nif [ -z "$OPENAI_API_KEY" ]; then\n    echo "⚠️  WARNING: OPENAI_API_KEY environment variable is NOT set"\n    echo "   The application will start but the chatbot will not function"\n    echo "   Please set OPENAI_API_KEY environment variable on Railway"\n    echo ""\nfi\n\necho "Starting Streamlit server on port $PORT"\necho "========================================="\necho ""\n\nexec streamlit run app.py --server.port=$PORT --server.address=0.0.0.0 --logger.level=info --client.showErrorDetails=true\n' > /app/startup/entrypoint.sh && \
+    chmod +x /app/startup/entrypoint.sh
 
 # ============================================================
 # HEALTHCHECK
