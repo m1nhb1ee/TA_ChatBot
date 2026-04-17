@@ -25,7 +25,7 @@ restartPolicyType = "ON_FAILURE"
 restartPolicyMaxRetries = 3
 
 # Environment variables (set via Railway Dashboard or CLI):
-# railway variables set OPENAI_API_KEY=sk-...
+# railway variables set OPENAI_API_KEY=your_actual_key_here
 # railway variables set ENVIRONMENT=production
 #
 # Example:
