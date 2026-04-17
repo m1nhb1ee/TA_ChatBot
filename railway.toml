@@ -1,0 +1,33 @@
+# ============================================================
+# railway.toml — Railway deployment configuration
+# 
+# Docs: https://docs.railway.com/reference/config-as-code
+# ============================================================
+
+[build]
+# Use Dockerfile for building
+builder = "DOCKERFILE"
+
+# Pre-build steps (optional)
+# buildCommand = "python -m rag.indexer"
+
+[deploy]
+# Streamlit start command
+# Railway injects PORT automatically
+startCommand = "streamlit run app.py --server.port=$PORT --server.address=0.0.0.0 --logger.level=info"
+
+# Health check configuration
+healthcheckPath = "/_stcore/health"
+healthcheckTimeout = 30
+
+# Restart policy
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 3
+
+# Environment variables (set via Railway Dashboard or CLI):
+# railway variables set OPENAI_API_KEY=sk-...
+# railway variables set ENVIRONMENT=production
+#
+# Example:
+# [env]
+# OPENAI_API_KEY = "${OPENAI_API_KEY}"
