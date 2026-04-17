@@ -55,15 +55,52 @@ ENV PYTHONUNBUFFERED=1
 ENV STREAMLIT_SERVER_PORT=8501
 ENV STREAMLIT_SERVER_HEADLESS=true
 ENV STREAMLIT_SERVER_ENABLECORS=false
+ENV STREAMLIT_LOGGER_LEVEL=info
+ENV STREAMLIT_CLIENT_SHOWERRORDETAILS=true
+
+# Create a startup script with better error handling
+RUN mkdir -p /app/startup && cat > /app/startup/entrypoint.sh << 'EOF'
+#!/bin/bash
+set -e
+
+echo "=========================================="
+echo "Starting TA_ChatBot Streamlit Application"
+echo "=========================================="
+echo "Python version: $(python --version)"
+echo "Streamlit version: $(streamlit --version)"
+echo ""
+
+# Check if OPENAI_API_KEY is set
+if [ -z "$OPENAI_API_KEY" ]; then
+    echo "⚠️  WARNING: OPENAI_API_KEY environment variable is NOT set"
+    echo "   The application will start but the chatbot will not function"
+    echo "   Please set OPENAI_API_KEY environment variable on Railway"
+    echo ""
+fi
+
+echo "Starting Streamlit server on port $PORT"
+echo "=========================================="
+echo ""
+
+exec streamlit run app.py \
+    --server.port=$PORT \
+    --server.address=0.0.0.0 \
+    --logger.level=info \
+    --client.showErrorDetails=true
+EOF
+
+chmod +x /app/startup/entrypoint.sh
 
 # ============================================================
 # HEALTHCHECK
 # ============================================================
-HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
-    CMD python -c "import requests; requests.get('http://localhost:${STREAMLIT_SERVER_PORT}/_stcore/health', timeout=5)" || exit 1
+# Streamlit health check - wait for startup period before checking
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+    CMD python -c "import requests; resp = requests.get('http://localhost:${STREAMLIT_SERVER_PORT}/_stcore/health', timeout=5); resp.raise_for_status()" || exit 1
 
 # ============================================================
 # START COMMAND
 # ============================================================
-# Railway injects $PORT — use it for Streamlit
-CMD ["streamlit", "run", "app.py", "--server.port=${PORT:-8501}", "--server.address=0.0.0.0", "--logger.level=info"]
+# Use startup script for better error handling and logging
+CMD ["/app/startup/entrypoint.sh"]
+

@@ -6,12 +6,19 @@ Chạy: streamlit run app.py
 
 import streamlit as st
 import uuid
-from agent import stream_chat
+import os
 from utils.storage import (
     get_metrics, update_metric, save_chat_session, 
     load_chat_session, list_past_chats
 )
 from utils.email_service import send_escalation_email
+
+# Check if OPENAI_API_KEY is set before importing agent
+if not os.getenv("OPENAI_API_KEY"):
+    st.error("❌ OPENAI_API_KEY is not set. Please configure it on Railway.")
+    st.stop()
+
+from agent import stream_chat
 
 # ===== PAGE CONFIG =====
 st.set_page_config(

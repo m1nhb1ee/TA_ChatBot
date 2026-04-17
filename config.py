@@ -2,6 +2,7 @@
 Configuration constants for the AI Teaching Assistant.
 """
 import os
+import sys
 from pathlib import Path
 from dotenv import load_dotenv
 
@@ -18,6 +19,12 @@ COURSE_INFO_PATH = KNOWLEDGE_BASE_DIR / "course_info.json"
 
 # --- OpenAI ---
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+
+# Warn if API key is not set (but don't crash - let the app handle it)
+if not OPENAI_API_KEY:
+    print("⚠️  WARNING: OPENAI_API_KEY is not set. The chatbot will not function properly.")
+    print("   Please set the environment variable: OPENAI_API_KEY=sk-...")
+
 LLM_MODEL = "gpt-4o"
 LLM_TEMPERATURE = 0.3
 EMBEDDING_MODEL = "text-embedding-3-large"

@@ -165,19 +165,28 @@ tools = [
 ]
 
 # === LLM ===
-llm = ChatOpenAI(
-    model=config.LLM_MODEL,
-    temperature=config.LLM_TEMPERATURE,
-    api_key=config.OPENAI_API_KEY,
-    streaming=True,
-)
+# Create LLM with error handling for missing API key
+llm = None
+agent = None
 
-# === AGENT ===
-agent = create_react_agent(
-    model=llm,
-    tools=tools,
-    prompt=SYSTEM_PROMPT,
-)
+try:
+    if config.OPENAI_API_KEY:
+        llm = ChatOpenAI(
+            model=config.LLM_MODEL,
+            temperature=config.LLM_TEMPERATURE,
+            api_key=config.OPENAI_API_KEY,
+            streaming=True,
+        )
+        
+        # === AGENT ===
+        agent = create_react_agent(
+            model=llm,
+            tools=tools,
+            prompt=SYSTEM_PROMPT,
+        )
+except Exception as e:
+    print(f"⚠️  Error initializing LLM/Agent: {e}")
+    print("   The chatbot will not function until OPENAI_API_KEY is properly set.")
 
 
 def chat(message: str, history: list[dict] = None) -> str:
