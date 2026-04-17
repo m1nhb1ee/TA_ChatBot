@@ -52,27 +52,31 @@ ENV PYTHONPATH=/home/appuser/.local/lib/python3.11/site-packages:/app
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
-# Streamlit configuration
+# Streamlit configuration - DO NOT set STREAMLIT_SERVER_PORT here
+# Let the startup script handle port via command-line argument
 ENV STREAMLIT_SERVER_HEADLESS=true
 ENV STREAMLIT_SERVER_ENABLECORS=false
 ENV STREAMLIT_LOGGER_LEVEL=info
 ENV STREAMLIT_CLIENT_SHOWERRORDETAILS=true
 
-# Create a startup script with better error handling
+# Create startup and health check scripts
 RUN mkdir -p /app/startup && \
-    printf '#!/bin/bash\nset -e\necho "========================================="\necho "Starting TA_ChatBot Streamlit Application"\necho "========================================="\necho "Python version: $(python --version)"\necho "Streamlit version: $(streamlit --version)"\necho ""\n\n# Use PORT from environment, default to 8501 if not set\nPORT=${PORT:-8501}\necho "PORT environment variable: $PORT"\n\nif [ -z "$OPENAI_API_KEY" ]; then\n    echo "⚠️  WARNING: OPENAI_API_KEY environment variable is NOT set"\n    echo "   The application will start but the chatbot will not function"\n    echo "   Please set OPENAI_API_KEY environment variable on Railway"\n    echo ""\nfi\n\necho "Starting Streamlit server on port $PORT"\necho "========================================="\necho ""\n\nexec streamlit run app.py --server.port=$PORT --server.address=0.0.0.0 --logger.level=info --client.showErrorDetails=true\n' > /app/startup/entrypoint.sh && \
-    chmod +x /app/startup/entrypoint.sh
+    # ===== STARTUP SCRIPT =====
+    printf '#!/bin/bash\nset -e\necho "========================================="\necho "Starting TA_ChatBot Streamlit Application"\necho "========================================="\necho "Python version: $(python --version)"\necho "Streamlit version: $(streamlit --version)"\necho ""\n\n# Use PORT from environment, default to 8501 if not set\nexport PORT=${PORT:-8501}\necho "PORT is set to: $PORT"\necho "PYTHONPATH: $PYTHONPATH"\n\nif [ -z "$OPENAI_API_KEY" ]; then\n    echo "⚠️  WARNING: OPENAI_API_KEY is NOT set"\n    echo "   Please set OPENAI_API_KEY on Railway dashboard"\n    echo ""\nfi\n\necho "Starting Streamlit on port $PORT"\necho "========================================="\necho ""\n\nexec streamlit run app.py \\\n  --server.port=$PORT \\\n  --server.address=0.0.0.0 \\\n  --logger.level=info \\\n  --client.showErrorDetails=true\n' > /app/startup/entrypoint.sh && \
+    chmod +x /app/startup/entrypoint.sh && \
+    # ===== HEALTH CHECK SCRIPT =====
+    printf '#!/bin/bash\nPORT=${PORT:-8501}\necho "Checking health on port $PORT"\npython -c "import requests; resp = requests.get(\"http://localhost:$PORT/_stcore/health\", timeout=5); resp.raise_for_status()"\n' > /app/startup/healthcheck.sh && \
+    chmod +x /app/startup/healthcheck.sh
 
 # ============================================================
 # HEALTHCHECK
 # ============================================================
-# Streamlit health check - wait for startup period before checking
+# Use separate health check script that properly handles PORT variable
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
-    CMD python -c "import requests; resp = requests.get('http://localhost:${PORT:-8501}/_stcore/health', timeout=5); resp.raise_for_status()" || exit 1
+    CMD /app/startup/healthcheck.sh
 
 # ============================================================
 # START COMMAND
 # ============================================================
-# Use startup script for better error handling and logging
 CMD ["/app/startup/entrypoint.sh"]
 
