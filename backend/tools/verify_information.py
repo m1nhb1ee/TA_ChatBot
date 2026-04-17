@@ -9,6 +9,12 @@ Nguyên tắc:
 """
 
 from langchain_core.tools import tool
+import sys
+from pathlib import Path
+
+# Add parent directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
 from rag.retriever import search_documents
 
 

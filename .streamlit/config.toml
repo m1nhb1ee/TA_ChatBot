@@ -1,5 +1,0 @@
-[client]
-showErrorDetails = true
-emailOptIn = false
-[logger]  
-level = "info"

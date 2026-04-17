@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Trợ Giảng - C/C++ Learning Assistant</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <h1>🎓 AI Trợ Giảng</h1>
+                <p class="subtitle">Lập trình C/C++ cơ bản</p>
+            </div>
+            <div class="header-controls">
+                <button id="theme-toggle" class="theme-btn" title="Toggle dark/light mode">
+                    <span class="theme-icon">🌙</span>
+                </button>
+                <button id="info-btn" class="info-btn" title="Show course info">
+                    ℹ️ Info
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main">
+            <!-- Chat Area -->
+            <div class="chat-container">
+                <div id="messages" class="messages">
+                    <div class="message system">
+                        <div class="message-content">
+                            <p>👋 Xin chào! Tôi là AI Trợ Giảng cho khóa học "Lập trình C/C++ cơ bản".</p>
+                            <p>Bạn có thể hỏi tôi bất kì điều gì liên quan đến lập trình C/C++.</p>
+                            <p style="margin-top: 1rem; font-size: 0.9em; opacity: 0.8;">💡 Gợi ý: Hỏi về "con trỏ", "vòng lặp", "hàm", v.v.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Input Area -->
+                <div class="input-area">
+                    <div class="input-wrapper">
+                        <input
+                            type="text"
+                            id="message-input"
+                            class="message-input"
+                            placeholder="Nhập câu hỏi của bạn..."
+                            autocomplete="off"
+                        >
+                        <button id="send-btn" class="send-btn" title="Send message (or press Enter)">
+                            <span>➤</span>
+                        </button>
+                    </div>
+                    <div class="input-hint">
+                        <small>Nhấn <kbd>Enter</kbd> để gửi hoặc nhấp nút bên phải</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <aside class="sidebar">
+                <div class="sidebar-section">
+                    <h3>📊 Thống kê</h3>
+                    <div id="metrics" class="metrics">
+                        <div class="metric">
+                            <span class="metric-label">Cuộc trò chuyện</span>
+                            <span class="metric-value">-</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Tin nhắn</span>
+                            <span class="metric-value">-</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Trạng thái</span>
+                            <span class="metric-value" id="status">⏳ Kênối</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sidebar-section">
+                    <h3>💬 Tìm kiếm nhanh</h3>
+                    <div class="quick-searches">
+                        <button class="quick-btn" data-question="Biến là gì trong C?">Biến</button>
+                        <button class="quick-btn" data-question="Con trỏ là gì?">Con trỏ</button>
+                        <button class="quick-btn" data-question="Vòng lặp for trong C">Vòng lặp</button>
+                        <button class="quick-btn" data-question="Hàm là gì?">Hàm</button>
+                        <button class="quick-btn" data-question="Mảng là gì?">Mảng</button>
+                        <button class="quick-btn" data-question="malloc và free">Cấp phát bộ nhớ</button>
+                    </div>
+                </div>
+
+                <div class="sidebar-section">
+                    <h3>🔗 Liên kết</h3>
+                    <div class="links">
+                        <a href="#" id="api-docs-link" target="_blank" class="link">📖 API Docs</a>
+                        <a href="#" id="github-link" target="_blank" class="link">🐙 GitHub</a>
+                    </div>
+                </div>
+            </aside>
+        </main>
+    </div>
+
+    <!-- Modal for Course Info -->
+    <div id="info-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>📚 Thông tin khóa học</h2>
+                <button class="modal-close" id="modal-close">&times;</button>
+            </div>
+            <div id="course-info" class="modal-body">
+                <p>⏳ Đang tải...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Spinner -->
+    <div id="loading-spinner" class="spinner"></div>
+
+    <!-- Scripts -->
+    <script src="app.js"></script>
+</body>
+</html>

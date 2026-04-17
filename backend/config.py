@@ -1,5 +1,5 @@
 """
-Configuration constants for the AI Teaching Assistant.
+Configuration constants for the AI Teaching Assistant Backend.
 """
 import os
 import sys
@@ -16,6 +16,10 @@ CODE_SAMPLES_DIR = KNOWLEDGE_BASE_DIR / "code_samples"
 FAISS_INDEX_DIR = BASE_DIR / "faiss_index"
 FAQ_PATH = KNOWLEDGE_BASE_DIR / "faq.md"
 COURSE_INFO_PATH = KNOWLEDGE_BASE_DIR / "course_info.json"
+APP_DATA_DIR = BASE_DIR / "app_data"
+
+# Ensure app_data directory exists
+APP_DATA_DIR.mkdir(exist_ok=True)
 
 # --- OpenAI ---
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
@@ -36,3 +40,9 @@ RETRIEVAL_K = 5  # Number of documents to retrieve
 
 # --- Course ---
 COURSE_NAME = "Lập trình C/C++ cơ bản"
+COURSE_CODE = "CS101"
+
+# --- API ---
+API_TITLE = "TA ChatBot API"
+API_VERSION = "1.0.0"
+API_DESCRIPTION = "Backend API for AI Teaching Assistant"

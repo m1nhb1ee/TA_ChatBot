@@ -5,6 +5,11 @@ LangGraph Agent — AI Trợ Giảng cho khóa học Lập trình C/C++ cơ bả
 from langchain_openai import ChatOpenAI
 from langgraph.prebuilt import create_react_agent
 from langchain_core.messages import AIMessage
+import sys
+from pathlib import Path
+
+# Add parent directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
 import config
 from tools.search_materials import search_course_materials
